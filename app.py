@@ -42,31 +42,28 @@ def find_store_id(CNPJ, address) -> str:
     return store_id
 
 
+def wait_and_find(browser, locator, timeout=5):
+    return WebDriverWait(browser, timeout).until(EC.visibility_of_element_located(locator))
+
+
 def parse_NFCe(browser: webdriver.Chrome, chaves: set, URL: str) -> tuple[pd.DataFrame, str, str]:
     # browser = webdriver.Chrome()
     browser.get(URL)
 
-    try:
-        WebDriverWait(browser, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "chave"))
-        )
-    except:
-        return None, None, None
-
-    chave = browser.find_element(By.CLASS_NAME, "chave").text.replace(' ','')
+    chave = wait_and_find(browser, (By.CLASS_NAME, "chave")).text.replace(' ', '')
 
     if chave in chaves:
         print("NFCe already parsed.")
         return pd.DataFrame(), None, None
 
-    CNPJ, address = browser.find_element(By.ID, "conteudo").find_elements(By.CLASS_NAME, "text")
+    CNPJ, address = wait_and_find(browser, (By.ID, "conteudo")).find_elements(By.CLASS_NAME, "text")
     CNPJ = filter_data(CNPJ.text).replace("CNPJ: ","")
     address = filter_data(address.text)
 
     store_id = find_store_id(CNPJ, address)
 
     data = []
-    tab_results = browser.find_element(By.ID, "tabResult")
+    tab_results = wait_and_find(browser,(By.ID, "tabResult"))
     products = tab_results.find_elements(By.TAG_NAME, "tr")
     for product in products:
         name = re.sub(EXP_REGEX, "", product.find_element(By.XPATH, ".//span[@class='txtTit']").text).lower()
@@ -101,8 +98,8 @@ def main() -> None:
         chaves = set()
     
     for URL in URLs:
-        df_nfce, chave, store_id = parse_NFCe(browser, chaves, URL)
-        purchases = pd.concat([purchases, df_nfce]).reset_index(drop=True)
+        df_purchases, chave, store_id = parse_NFCe(browser, chaves, URL)
+        purchases = pd.concat([purchases, df_purchases]).reset_index(drop=True)
         if chave is not None and store_id is not None:
             nfces = pd.concat([nfces, pd.DataFrame(data=[[chave, store_id]], columns=["chave", "store_id"])]).reset_index(drop=True)
     
