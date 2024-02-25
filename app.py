@@ -1,4 +1,7 @@
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup as bs
 import pandas as pd
 import re
@@ -39,31 +42,39 @@ def find_store_id(CNPJ, address) -> str:
     return store_id
 
 
-def parse_NFCe(chaves: set, URL: str) -> tuple[pd.DataFrame, str, str]:
-    page = requests.get(URL)
-    soup = bs(page.content, "html.parser")
+def parse_NFCe(browser: webdriver.Chrome, chaves: set, URL: str) -> tuple[pd.DataFrame, str, str]:
+    # browser = webdriver.Chrome()
+    browser.get(URL)
 
-    chave = soup.find("span", class_="chave").text.replace(' ','')
+    try:
+        WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "chave"))
+        )
+    except:
+        return None, None, None
+
+    chave = browser.find_element(By.CLASS_NAME, "chave").text.replace(' ','')
 
     if chave in chaves:
         print("NFCe already parsed.")
         return pd.DataFrame(), None, None
 
-    CNPJ, address = soup.find(id="conteudo").findChildren(class_="text")
-    CNPJ = filter_data(CNPJ.text).replace("CNPJ:","")
+    CNPJ, address = browser.find_element(By.ID, "conteudo").find_elements(By.CLASS_NAME, "text")
+    CNPJ = filter_data(CNPJ.text).replace("CNPJ: ","")
     address = filter_data(address.text)
 
     store_id = find_store_id(CNPJ, address)
 
     data = []
-    tab_results = soup.find(id="tabResult")
-    for product in tab_results.find_all("tr"):
-        name = re.sub(EXP_REGEX, "", product.find("span", class_="txtTit").text).lower()
+    tab_results = browser.find_element(By.ID, "tabResult")
+    products = tab_results.find_elements(By.TAG_NAME, "tr")
+    for product in products:
+        name = re.sub(EXP_REGEX, "", product.find_element(By.XPATH, ".//span[@class='txtTit']").text).lower()
         # quantity = re.sub(EXP_REGEX, "", product.find("span", class_="Rqtd").text).replace("Qtde.:","")
         # quantity = convert_to_float(quantity)
-        unit = re.sub(EXP_REGEX, "", product.find("span", class_="RUN").text).replace("UN: ","").lower()
-        unit_value = re.sub(EXP_REGEX, "", product.find("span", class_="RvlUnit").text).replace("Vl. Unit.:", "")
-        unit_value = round(convert_to_float(unit_value), 2)
+        unit = re.sub(EXP_REGEX, "", product.find_element(By.XPATH, ".//span[@class='RUN']").text).replace("UN: ","").lower()
+        unit_value = convert_to_float(re.sub(EXP_REGEX, "", product.find_element(By.XPATH, ".//span[@class='RvlUnit']").text).replace("Vl. Unit.:   ", ""))
+        if isinstance(unit_value, float): unit_value = round(unit_value, 2) #TODO fix this
         # value = quantity * unit_value
         data.append([store_id, name, unit, unit_value])
     
@@ -71,6 +82,9 @@ def parse_NFCe(chaves: set, URL: str) -> tuple[pd.DataFrame, str, str]:
     
     
 def main() -> None:
+
+    browser = webdriver.Chrome()
+
     with open("URLs.txt", "r") as f:
         URLs = f.read().splitlines()
 
@@ -87,7 +101,7 @@ def main() -> None:
         chaves = set()
     
     for URL in URLs:
-        df_nfce, chave, store_id = parse_NFCe(chaves, URL)
+        df_nfce, chave, store_id = parse_NFCe(browser, chaves, URL)
         purchases = pd.concat([purchases, df_nfce]).reset_index(drop=True)
         if chave is not None and store_id is not None:
             nfces = pd.concat([nfces, pd.DataFrame(data=[[chave, store_id]], columns=["chave", "store_id"])]).reset_index(drop=True)
@@ -97,6 +111,8 @@ def main() -> None:
 
     # with open("URLs.txt", "w") as f:
     #     f.write("")
+
+    browser.close()
 
 
 if __name__ == '__main__':

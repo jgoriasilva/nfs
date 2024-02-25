@@ -1,31 +1,16 @@
 ,store_id,name,unit,unit_value
-0,0,aveia flocos finos kg == ajust 250124,kg,11.98
-1,0,power one pasta de amendoim 1kg <<,un,16.98
-2,1,queijo mussarela sertao kg - kg,kg,43.9
-3,1,presunto suino levissimo seara kg - kg,kg,31.8
-4,1,ovos luna grande fil c/12 - 1x12und,un,8.99
-5,1,banana ana kg - kg,un,4.28
-6,1,maca nacional cat1 kg - kg,kg,16.99
-7,1,pao frances kg - kg,kg,12.5
-8,1,agua mineral solara s/gas 5l - un,un,8.99
-9,2,agua mineral indaia s gas pet 5l,un,11.99
-10,2,suco natural one laranja integral refr g,un,15.97
-11,2,f banana ana kg,kg,4.19
-12,3,sab barra gipsy dese,un,1.59
-13,3,sacola plast valfilm,un,0.12
-14,3,ovo grande branco cr,un,12.99
-15,3,leite uht semi desn,un,3.99
-16,3,iog natural integral,un,2.29
-17,3,manteiga aviacao c s,un,6.69
-18,3,queijo gouda kg,kg,68.49
-19,3,desod spray masc axe,un,8.59
-20,3,manga palmer  crfo k,kg,7.99
-21,3,abacate sq kg,kg,8.99
-22,3,maca gala crfo kg,kg,14.99
-23,3,banana nanica sq kg,kg,7.79
-24,3,pao italiano especi,kg,29.9
-25,4,agua min c gas cryst,un,4.19
-26,4,pao frances inte exp,kg,26.49
-27,4,amendoim yoki,un,9.49
-28,4,mortadela def sadia,un,10.59
-29,4,mamao papaya express,kg,9.79
+0,0,salg cheetos onda 140g,un,12.75
+1,0,ovos bco jumbo 10un,un,10.99
+2,0,ovo ferrero rocher 225,un,109.9
+3,1,aveia flocos finos kg == ajust 250124,kg,11.98
+4,1,power one pasta de amendoim 1kg <<,un,16.98
+5,2,queijo mussarela sertao kg - kg,kg,43.9
+6,2,presunto suino levissimo seara kg - kg,kg,31.8
+7,2,ovos luna grande fil c/12 - 1x12und,un,8.99
+8,2,banana ana kg - kg,un,4.28
+9,2,maca nacional cat1 kg - kg,kg,16.99
+10,2,pao frances kg - kg,kg,12.5
+11,2,agua mineral solara s/gas 5l - un,un,8.99
+12,3,agua mineral indaia s gas pet 5l,un,11.99
+13,3,suco natural one laranja integral refr g,un,15.97
+14,3,f banana ana kg,kg,4.19
